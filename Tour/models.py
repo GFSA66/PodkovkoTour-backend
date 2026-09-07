@@ -19,6 +19,12 @@ class DepartureCity(models.Model):
     def __str__(self):
         return self.name
 
+class GoalCity(models.Model):
+    name = models.CharField(max_length=100, unique=True)  # Дніпро, Кишинів...
+
+    def __str__(self):
+        return self.name
+
 
 class TourOperator(models.Model):
     name = models.CharField(max_length=100, unique=True)  # Join Up, Kompas, Alf.ua
@@ -63,7 +69,7 @@ class Tour(models.Model):
         UAI = "UAI", "Ультра все включено"
 
     class Currency(models.TextChoices):
-        UAH = "UAH", "грн"
+        UAH = "UAH", "₴"
         USD = "USD", "$"
         EUR = "EUR", "€"
 
@@ -76,6 +82,7 @@ class Tour(models.Model):
     hotel = models.ForeignKey(Hotel, on_delete=models.PROTECT, related_name="tours")
     tour_operator = models.ForeignKey(TourOperator, on_delete=models.PROTECT, related_name="tours")
     departure_city = models.ForeignKey(DepartureCity, on_delete=models.PROTECT, related_name="tours")
+    goal_city = models.ForeignKey(GoalCity, on_delete=models.PROTECT, related_name="tours", default=1)
 
     departure_date = models.DateField()
     nights = models.PositiveSmallIntegerField()

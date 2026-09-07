@@ -6,6 +6,7 @@ from django.utils.html import format_html
 from .models import (
     Country,
     DepartureCity,
+    GoalCity,
     TourOperator,
     Hotel,
     HotelPhoto,
@@ -38,6 +39,18 @@ class DepartureCityAdmin(admin.ModelAdmin):
     @admin.display(description="Туров")
     def tours_count(self, obj):
         return obj.tours.count()
+
+
+
+@admin.register(GoalCity)
+class GoalCityAdmin(admin.ModelAdmin):
+    list_display = ("name", "tours_count")
+    search_fields = ("name",)
+
+    @admin.display(description="Туров")
+    def tours_count(self, obj):
+        return obj.tours.count()
+
 
 
 @admin.register(TourOperator)
@@ -123,6 +136,7 @@ class TourAdmin(admin.ModelAdmin):
         "hotel_link",
         "tour_operator",
         "departure_city",
+        "goal_city",
         "departure_date",
         "nights",
         "meal_type",
@@ -137,14 +151,15 @@ class TourAdmin(admin.ModelAdmin):
         "meal_type",
         "tour_operator",
         "departure_city",
+        "goal_city",
         "price_currency",
         "hotel__country",
     )
     search_fields = ("hotel__name", "hotel__resort", "external_id")
     date_hierarchy = "departure_date"
-    autocomplete_fields = ("hotel", "tour_operator", "departure_city")
+    autocomplete_fields = ("hotel", "tour_operator", "departure_city", "goal_city")
     readonly_fields = ("created_by", "created_at", "updated_at")
-    list_select_related = ("hotel", "hotel__country", "tour_operator", "departure_city")
+    list_select_related = ("hotel", "hotel__country", "tour_operator", "departure_city", "goal_city")
     ordering = ("-is_hot", "departure_date")
     list_per_page = 30
     actions = ("mark_as_hot", "unmark_as_hot", "mark_sold_out", "mark_active")
@@ -152,7 +167,7 @@ class TourAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Тур", {
             "fields": (
-                "hotel", "tour_operator", "departure_city",
+                "hotel", "tour_operator", "departure_city","goal_city",
                 "departure_date", "nights",
                 "adults_count", "children_count", "meal_type",
             )
