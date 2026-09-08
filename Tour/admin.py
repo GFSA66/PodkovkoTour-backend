@@ -170,7 +170,7 @@ class TourAdmin(admin.ModelAdmin):
             "fields": (
                 "hotel", "tour_operator", "departure_city","goal_city",
                 "departure_date", "nights",
-                "adults_count", "children_count", "meal_type",
+                "adults_count", "children", "meal_type",
             )
         }),
         ("Цена и статус", {

@@ -89,7 +89,7 @@ class Tour(models.Model):
     departure_date = models.DateField(null=True, blank=True)
     nights = models.PositiveSmallIntegerField()
     adults_count = models.PositiveSmallIntegerField(default=2)
-    children_count = models.PositiveSmallIntegerField(default=0)
+    children = models.BooleanField(default=False)  # есть ли дети в туре
     meal_type = models.CharField(max_length=3, choices=MealType.choices)
 
     price_amount = models.DecimalField(max_digits=10, decimal_places=2)
