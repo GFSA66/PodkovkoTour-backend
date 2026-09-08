@@ -1,6 +1,4 @@
 from django.contrib import admin
-from .models import Tour
-from django.contrib import admin
 from django.utils.html import format_html
 
 from .models import (
@@ -41,7 +39,6 @@ class DepartureCityAdmin(admin.ModelAdmin):
         return obj.tours.count()
 
 
-
 @admin.register(GoalCity)
 class GoalCityAdmin(admin.ModelAdmin):
     list_display = ("name", "tours_count")
@@ -50,7 +47,6 @@ class GoalCityAdmin(admin.ModelAdmin):
     @admin.display(description="Туров")
     def tours_count(self, obj):
         return obj.tours.count()
-
 
 
 @admin.register(TourOperator)
@@ -168,7 +164,7 @@ class TourAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Тур", {
             "fields": (
-                "hotel", "tour_operator", "departure_city","goal_city",
+                "hotel", "tour_operator", "departure_city", "goal_city",
                 "departure_date", "nights",
                 "adults_count", "children", "meal_type",
             )
@@ -249,7 +245,15 @@ BOOKING_STATUS_COLORS = {
 
 @admin.register(BookingRequest)
 class BookingRequestAdmin(admin.ModelAdmin):
-    list_display = ("full_name", "phone", "tour", "status_badge", "manager", "created_at")
+    list_display = (
+        "full_name",
+        "phone",
+        "tour",
+        "preferred_dates",
+        "status_badge",
+        "manager",
+        "created_at",
+    )
     list_filter = ("status", "manager")
     search_fields = ("full_name", "phone", "email", "tour__hotel__name")
     autocomplete_fields = ("tour", "manager")
@@ -260,10 +264,16 @@ class BookingRequestAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ("Клиент", {"fields": ("full_name", "phone", "email", "comment")}),
-        ("Тур", {"fields": ("tour",)}),
+        ("Тур", {"fields": ("tour", "preferred_date_from", "preferred_date_to")}),
         ("Обработка заявки", {"fields": ("status", "manager")}),
         ("Служебное", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
     )
+
+    @admin.display(description="Бажана дата")
+    def preferred_dates(self, obj):
+        if not obj.preferred_date_from and not obj.preferred_date_to:
+            return "—"
+        return f"{obj.preferred_date_from or '?'} – {obj.preferred_date_to or '?'}"
 
     @admin.display(description="Статус", ordering="status")
     def status_badge(self, obj):

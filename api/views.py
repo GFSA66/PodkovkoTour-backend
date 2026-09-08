@@ -1,77 +1,84 @@
-from rest_framework import viewsets
-from rest_framework.decorators import api_view
+from django.contrib.auth import login as django_login, logout as django_logout
+from django.middleware.csrf import get_token
+from rest_framework import permissions, status
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.views import APIView
 
-from Tour.models import Country, DepartureCity, GoalCity, TourOperator, Tour, BookingRequest, Hotel
-from .serializers import (
-    CountrySerializer, DepartureCitySerializer, GoalCitySerializer, TourOperatorSerializer,
-    TourListSerializer, TourDetailSerializer, BookingRequestSerializer,
+from members.serializers import (
+    LoginSerializer,
+    ProfileUpdateSerializer,
+    RegisterSerializer,
+    UserSerializer,
 )
 
 
-class CountryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Country.objects.order_by("name")
-    serializer_class = CountrySerializer
-    pagination_class = None
+class CsrfCookieView(APIView):
+    """GET /api/auth/csrf/ — дергается фронтом один раз при старте,
+    чтобы в браузере появилась csrftoken cookie для последующих POST/PATCH."""
+
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        get_token(request)
+        return Response({"detail": "CSRF cookie set"})
 
 
-class DepartureCityViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = DepartureCity.objects.order_by("name")
-    serializer_class = DepartureCitySerializer
-    pagination_class = None
+class RegisterView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        django_login(request, user)
+        return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
 
 
-class GoalCityViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = GoalCity.objects.order_by("name")
-    serializer_class = GoalCitySerializer
-    pagination_class = None
+class LoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data["user"]
+        django_login(request, user)
+        return Response(UserSerializer(user).data)
 
 
-class TourOperatorViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = TourOperator.objects.order_by("name")
-    serializer_class = TourOperatorSerializer
-    pagination_class = None
+class LogoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        django_logout(request)
+        return Response({"detail": "Вихід виконано"})
 
 
-@api_view(["GET"])
-def meal_types(request):
-    """GET /api/meal-types/ -> [{"value": "AI", "label": "Все включено"}, ...]"""
-    return Response([{"value": v, "label": l} for v, l in Tour.MealType.choices])
+class MeView(APIView):
+    """GET /api/auth/me/ — 200 + дані юзера, якщо залогінений; 401, якщо гість."""
+
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({"detail": "Не авторизовано"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(UserSerializer(request.user).data)
 
 
-@api_view(["GET"])
-def resorts(request):
-    """GET /api/resorts/ -> уникальные курортные зоны отелей (Hotel.resort)"""
-    names = (
-        Hotel.objects.exclude(resort="")
-        .values_list("resort", flat=True)
-        .distinct()
-        .order_by("resort")
-    )
-    return Response([{"id": n, "name": n} for n in names])
+class ProfileUpdateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request):
+        serializer = ProfileUpdateSerializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(UserSerializer(request.user).data)
 
 
-class TourViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = (
-        Tour.objects.filter(status=Tour.Status.ACTIVE)
-        .select_related("hotel", "hotel__country", "departure_city", "goal_city", "tour_operator")
-        .prefetch_related("hotel__photos")
-    )
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["is_hot", "departure_city", "goal_city", "tour_operator", "meal_type", "hotel__country"]
-    pagination_class = None  # фронт сейчас грузит весь список и фильтрует на клиенте
+class DeleteAccountView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-    def get_serializer_class(self):
-        return TourDetailSerializer if self.action == "retrieve" else TourListSerializer
-
-    def get_serializer_context(self):
-        ctx = super().get_serializer_context()
-        ctx["request"] = self.request
-        return ctx
-
-
-class BookingRequestViewSet(viewsets.ModelViewSet):
-    queryset = BookingRequest.objects.all()
-    serializer_class = BookingRequestSerializer
-    http_method_names = ["post", "head", "options"]
+    def delete(self, request):
+        user = request.user
+        django_logout(request)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

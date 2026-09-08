@@ -62,7 +62,11 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8443',
 ]
+CORS_ALLOW_CREDENTIALS = True
 
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8443',
+]
 ROOT_URLCONF = 'PodkovkoTour.urls'
 
 TEMPLATES = [

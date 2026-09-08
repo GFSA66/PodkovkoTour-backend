@@ -128,6 +128,12 @@ class BookingRequest(models.Model):
         CANCELLED = "cancelled", "Отменена"
 
     tour = models.ForeignKey(Tour, on_delete=models.SET_NULL, null=True, related_name="booking_requests")
+    adults_count = models.PositiveSmallIntegerField(default=2)
+    children = models.BooleanField(default=False)  # есть ли дети в туре
+    nights = models.PositiveSmallIntegerField(blank=True, null=True)  # на случай, если тур не выбран (только даты)
+    meal_type = models.CharField(max_length=3, choices=Tour.MealType.choices, blank=True)  # на случай, если тур не выбран (только даты)
+    preferred_date_from = models.DateField(null=True, blank=True)
+    preferred_date_to = models.DateField(null=True, blank=True)
     full_name = models.CharField(max_length=150)
     phone = models.CharField(max_length=20)
     email = models.EmailField(blank=True)
