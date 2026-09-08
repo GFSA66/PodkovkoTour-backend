@@ -88,6 +88,7 @@ class HotelAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "country",
+        "goal_city",
         "resort",
         "stars_display",
         "is_active",
@@ -99,7 +100,7 @@ class HotelAdmin(admin.ModelAdmin):
     list_editable = ("is_active",)
     inlines = [HotelPhotoInline]
     fieldsets = (
-        (None, {"fields": ("name", "country", "resort", "stars", "is_active")}),
+        (None, {"fields": ("name", "country", "goal_city", "resort", "stars", "is_active")}),
         ("Описание", {"fields": ("description",), "classes": ("collapse",)}),
     )
 

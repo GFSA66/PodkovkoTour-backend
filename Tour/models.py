@@ -21,6 +21,7 @@ class DepartureCity(models.Model):
 
 class GoalCity(models.Model):
     name = models.CharField(max_length=100, unique=True)  # Дніпро, Кишинів...
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="goal_cities", null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -40,7 +41,8 @@ class Hotel(models.Model):
         FIVE = 5, "5*"
 
     name = models.CharField(max_length=200)
-    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="hotels")
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="hotels", null=True, blank=True)
+    goal_city = models.ForeignKey(GoalCity, on_delete=models.PROTECT, related_name="hotels", null=True, blank=True)
     resort = models.CharField(max_length=150, blank=True)  # Аланія, Золоті Піски...
     stars = models.PositiveSmallIntegerField(choices=Stars.choices, null=True, blank=True)
     description = models.TextField(blank=True)
@@ -80,11 +82,11 @@ class Tour(models.Model):
         EXPIRED = "expired", "Не актуален"
 
     hotel = models.ForeignKey(Hotel, on_delete=models.PROTECT, related_name="tours")
-    tour_operator = models.ForeignKey(TourOperator, on_delete=models.PROTECT, related_name="tours")
+    tour_operator = models.ForeignKey(TourOperator, on_delete=models.PROTECT, related_name="tours", null=True, blank=True)
     departure_city = models.ForeignKey(DepartureCity, on_delete=models.PROTECT, related_name="tours")
-    goal_city = models.ForeignKey(GoalCity, on_delete=models.PROTECT, related_name="tours", default=1)
+    goal_city = models.ForeignKey(GoalCity, on_delete=models.PROTECT, related_name="tours", null=True, blank=True)
 
-    departure_date = models.DateField()
+    departure_date = models.DateField(null=True, blank=True)
     nights = models.PositiveSmallIntegerField()
     adults_count = models.PositiveSmallIntegerField(default=2)
     children_count = models.PositiveSmallIntegerField(default=0)
