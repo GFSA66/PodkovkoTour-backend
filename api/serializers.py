@@ -129,6 +129,7 @@ class BookingRequestCreateSerializer(serializers.ModelSerializer):
             "children",
             "nights",
             "meal_type",
+            "preferred_contact",
         )
         read_only_fields = ("id",)
         extra_kwargs = {

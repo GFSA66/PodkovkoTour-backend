@@ -121,12 +121,17 @@ class Tour(models.Model):
 
 
 class BookingRequest(models.Model):
+    class PreferredContact(models.TextChoices):
+        VIBER = "viber", "Viber"
+        TELEGRAM = "telegram", "Telegram"
+        
     class Status(models.TextChoices):
         NEW = "new", "Новая"
         IN_PROGRESS = "in_progress", "В работе"
         CONFIRMED = "confirmed", "Подтверждена"
         CANCELLED = "cancelled", "Отменена"
 
+    preferred_contact = models.CharField(max_length=10, choices=PreferredContact.choices, default=PreferredContact.TELEGRAM)
     tour = models.ForeignKey(Tour, on_delete=models.SET_NULL, null=True, related_name="booking_requests")
     adults_count = models.PositiveSmallIntegerField(default=2)
     children = models.BooleanField(default=False)  # есть ли дети в туре

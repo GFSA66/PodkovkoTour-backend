@@ -23,6 +23,7 @@ def send_booking_notification(booking):
     meal_display = tour.get_meal_type_display() if tour else (
         booking.get_meal_type_display() if booking.meal_type else None
     )
+    CONTACT_LABELS = {"viber": "Viber", "telegram": "Telegram"}
 
     lines = [
         "🆕 Нова заявка на тур",
@@ -34,6 +35,7 @@ def send_booking_notification(booking):
         f"Ім'я: {booking.full_name}",
         f"Телефон: {booking.phone}",
         f"Email: {booking.email or '—'}",
+        f"📞 Краще писати через: {CONTACT_LABELS.get(booking.preferred_contact, booking.preferred_contact)}",
     ]
 
     if booking.preferred_date_from or booking.preferred_date_to:
