@@ -1,9 +1,17 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from . import views
 
-from .views import BookingRequestCreateView, TourDetailView, TourListView
+router = DefaultRouter()
+router.register("countries", views.CountryViewSet, basename="country")
+router.register("departure-cities", views.DepartureCityViewSet, basename="departure-city")
+router.register("goal-cities", views.GoalCityViewSet, basename="goal-city")
+router.register("tour-operators", views.TourOperatorViewSet, basename="tour-operator")
+router.register("tours", views.TourViewSet, basename="tour")
+router.register("booking-requests", views.BookingRequestViewSet, basename="booking-request")
 
 urlpatterns = [
-    path("tours/", TourListView.as_view(), name="tour-list"),
-    path("tours/<int:pk>/", TourDetailView.as_view(), name="tour-detail"),
-    path("booking-requests/", BookingRequestCreateView.as_view(), name="booking-request-create"),
+    path("meal-types/", views.meal_types, name="meal-types"),
+    path("resorts/", views.resorts, name="resorts"),
+    path("", include(router.urls)),
 ]
