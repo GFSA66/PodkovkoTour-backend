@@ -306,13 +306,13 @@ class BookingRequestAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ("author_name", "tour", "stars_display", "is_published", "created_at")
-    list_filter = ("is_published", "rating")
+    list_display = ("author_name", "tour", "stars_display", "is_published", "is_pinned", "created_at")
+    list_filter = ("is_published", "is_pinned", "rating")
     search_fields = ("author_name", "text", "tour__hotel__name")
     autocomplete_fields = ("tour",)
     readonly_fields = ("created_at",)
     list_per_page = 25
-    actions = ("publish_reviews", "unpublish_reviews")
+    actions = ("publish_reviews", "unpublish_reviews", "pin_reviews", "unpin_reviews")
 
     @admin.display(description="Оценка", ordering="rating")
     def stars_display(self, obj):
@@ -331,3 +331,14 @@ class ReviewAdmin(admin.ModelAdmin):
     def unpublish_reviews(self, request, queryset):
         updated = queryset.update(is_published=False)
         self.message_user(request, f"Снято: {updated}")
+
+
+    @admin.action(description="Закріпити на головній")
+    def pin_reviews(self, request, queryset):
+        updated = queryset.update(is_pinned=True)
+        self.message_user(request, f"Закріплено: {updated}")
+
+    @admin.action(description="Відкріпити з головної")
+    def unpin_reviews(self, request, queryset):
+        updated = queryset.update(is_pinned=False)
+        self.message_user(request, f"Відкріплено: {updated}")

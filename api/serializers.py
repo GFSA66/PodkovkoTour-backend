@@ -138,3 +138,15 @@ class BookingRequestCreateSerializer(serializers.ModelSerializer):
             "nights": {"required": False},
             "meal_type": {"required": False, "allow_blank": True},
         }
+
+class BookingRequestHistorySerializer(serializers.ModelSerializer):
+    tour = TourListSerializer(read_only=True)
+    status_display = serializers.CharField(source="get_status_display")
+
+    class Meta:
+        model = BookingRequest
+        fields = (
+            "id", "tour", "status", "status_display",
+            "preferred_contact", "preferred_date_from", "preferred_date_to",
+            "adults_count", "children", "created_at",
+        )

@@ -5,9 +5,14 @@ from .models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
+    # Без цього поля avatar просто не потрапляє у відповідь /auth/me/,
+    # /auth/register/, /auth/login/ і /auth/profile/ — фронтенд не бачив би,
+    # що аватар взагалі є.
+    avatar = serializers.ImageField(required=False, allow_null=True)
+
     class Meta:
         model = User
-        fields = ("email", "full_name", "phone")
+        fields = ("email", "full_name", "phone", "avatar", "is_staff")
 
 
 class RegisterSerializer(serializers.Serializer):
@@ -38,6 +43,11 @@ class LoginSerializer(serializers.Serializer):
 
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
+    # Без цього поля PATCH /auth/profile/ мовчки ІГНОРУЄ файл avatar у
+    # multipart-запиті — не падає з помилкою, просто нічого не зберігає.
+    # Це і є причина, чому завантаження фото зараз нічого не робить.
+    avatar = serializers.ImageField(required=False, allow_null=True)
+
     class Meta:
         model = User
-        fields = ("full_name", "phone")
+        fields = ("full_name", "phone", "avatar")

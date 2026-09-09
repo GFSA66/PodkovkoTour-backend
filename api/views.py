@@ -31,7 +31,9 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         django_login(request, user)
-        return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+        # context={"request": request} — щоб avatar (поки що порожній) і
+        # надалі серіалізувався абсолютним URL, а не відносним шляхом.
+        return Response(UserSerializer(user, context={"request": request}).data, status=status.HTTP_201_CREATED)
 
 
 class LoginView(APIView):
@@ -42,7 +44,7 @@ class LoginView(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
         django_login(request, user)
-        return Response(UserSerializer(user).data)
+        return Response(UserSerializer(user, context={"request": request}).data)
 
 
 class LogoutView(APIView):
@@ -61,7 +63,7 @@ class MeView(APIView):
     def get(self, request):
         if not request.user.is_authenticated:
             return Response({"detail": "Не авторизовано"}, status=status.HTTP_401_UNAUTHORIZED)
-        return Response(UserSerializer(request.user).data)
+        return Response(UserSerializer(request.user, context={"request": request}).data)
 
 
 class ProfileUpdateView(APIView):
@@ -71,7 +73,7 @@ class ProfileUpdateView(APIView):
         serializer = ProfileUpdateSerializer(request.user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(UserSerializer(request.user).data)
+        return Response(UserSerializer(request.user, context={"request": request}).data)
 
 
 class DeleteAccountView(APIView):

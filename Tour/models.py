@@ -143,6 +143,10 @@ class BookingRequest(models.Model):
     phone = models.CharField(max_length=20)
     email = models.EmailField(blank=True)
     comment = models.TextField(blank=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="booking_requests",
+    )
 
     status = models.CharField(max_length=15, choices=Status.choices, default=Status.NEW)
     manager = models.ForeignKey(
@@ -169,3 +173,9 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.author_name} — {self.rating}/5"
+    is_published = models.BooleanField(default=False)
+    is_pinned = models.BooleanField(
+        default=False,
+        help_text="Показувати цей відгук у блоці «Про турагента» на головній (макс. 3)",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
