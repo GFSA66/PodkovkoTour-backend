@@ -3,14 +3,18 @@ from .models import Review
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    # На головній відгук не прив'язаний візуально до конкретного туру, але
-    # tour_name корисно показати як контекст ("відгук про тур «...»").
-    # allow_null/required=False — бо Review.tour може бути null.
-    tour_name = serializers.CharField(source="tour.name", read_only=True, required=False, default=None)
+    author_avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
-        fields = ("id", "author_name", "rating", "text", "created_at", "tour_name")
+        fields = ("id", "author_name", "rating", "text", "created_at", "author_avatar")
+
+    def get_author_avatar(self, obj):
+        if not obj.author_avatar:
+            return None
+        request = self.context.get("request")
+        url = obj.author_avatar.url
+        return request.build_absolute_uri(url) if request else url
 
 class ReviewCreateSerializer(serializers.ModelSerializer):
     """Для POST — приймає лише rating + text, решту (автор, tour,
@@ -27,9 +31,11 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         request = self.context["request"]
         user = request.user
         author_name = getattr(user, "full_name", "") or user.email
+        author_avatar = getattr(user, "avatar", None)
         return Review.objects.create(
             tour_id=self.context["tour_id"],
             author_name=author_name,
+            author_avatar=author_avatar,
             rating=validated_data["rating"],
             text=validated_data["text"],
             is_published=False,  # публікує менеджер вручну через адмінку

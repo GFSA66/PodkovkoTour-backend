@@ -170,6 +170,7 @@ class Review(models.Model):
     text = models.TextField()
     is_published = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    author_avatar = models.ImageField(upload_to="avatars/%Y/%m/", blank=True, null=True)
 
     def __str__(self):
         return f"{self.author_name} — {self.rating}/5"
@@ -178,4 +179,3 @@ class Review(models.Model):
         default=False,
         help_text="Показувати цей відгук у блоці «Про турагента» на головній (макс. 3)",
     )
-    created_at = models.DateTimeField(auto_now_add=True)

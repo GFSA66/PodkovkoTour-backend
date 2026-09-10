@@ -109,10 +109,19 @@ class TourDetailSerializer(TourListSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    author_avatar = serializers.SerializerMethodField()
+
     class Meta:
         model = Review
-        fields = ("id", "author_name", "rating", "text", "created_at")
+        fields = ("id", "author_name", "rating", "text", "created_at", "author_avatar")
 
+    def get_author_avatar(self, obj):
+        if not obj.author_avatar:
+            return None
+        request = self.context.get("request")
+        url = obj.author_avatar.url
+        return request.build_absolute_uri(url) if request else url
+    
 class BookingRequestCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookingRequest
