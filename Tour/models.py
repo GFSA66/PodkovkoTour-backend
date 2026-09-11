@@ -126,10 +126,10 @@ class BookingRequest(models.Model):
         TELEGRAM = "telegram", "Telegram"
         
     class Status(models.TextChoices):
-        NEW = "new", "Новая"
-        IN_PROGRESS = "in_progress", "В работе"
-        CONFIRMED = "confirmed", "Подтверждена"
-        CANCELLED = "cancelled", "Отменена"
+        NEW = "new", "Нова"
+        IN_PROGRESS = "in_progress", "В роботі"
+        CONFIRMED = "confirmed", "Підтверджена"
+        CANCELLED = "cancelled", "Відмінена"
 
     preferred_contact = models.CharField(max_length=10, choices=PreferredContact.choices, default=PreferredContact.TELEGRAM)
     tour = models.ForeignKey(Tour, on_delete=models.SET_NULL, null=True, related_name="booking_requests")

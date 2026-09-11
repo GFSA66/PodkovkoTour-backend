@@ -9,6 +9,8 @@ from members.serializers import (
     ProfileUpdateSerializer,
     RegisterSerializer,
     UserSerializer,
+    PasswordResetConfirmSerializer,
+    PasswordResetRequestSerializer
 )
 
 
@@ -84,3 +86,23 @@ class DeleteAccountView(APIView):
         django_logout(request)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        # Завжди один і той самий 200 — незалежно від того, знайшли юзера чи ні
+        return Response({"detail": "Якщо така пошта є в системі, лист надіслано."})
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"detail": "Пароль оновлено."})

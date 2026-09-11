@@ -59,6 +59,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+DEFAULT_FROM_EMAIL = "noreply@podkovkotour.ua"
+FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:8443")
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8443',
 ]
@@ -143,7 +146,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
 MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+    "default": {
+        "BACKEND": "django.core.mail.backends.console.EmailBackend",
     },
 }

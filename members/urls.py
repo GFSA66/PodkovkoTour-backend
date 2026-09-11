@@ -8,6 +8,8 @@ from api.views import (
     MeView,
     ProfileUpdateView,
     RegisterView,
+    PasswordResetConfirmView,
+    PasswordResetRequestView
 )
 
 urlpatterns = [
@@ -18,4 +20,6 @@ urlpatterns = [
     path("me/", MeView.as_view(), name="auth-me"),
     path("profile/", ProfileUpdateView.as_view(), name="auth-profile-update"),
     path("delete/", DeleteAccountView.as_view(), name="auth-delete-account"),
+    path("password-reset/", PasswordResetRequestView.as_view(), name="auth-password-reset"),
+    path("password-reset/confirm/", PasswordResetConfirmView.as_view(), name="auth-password-reset-confirm"),
 ]
